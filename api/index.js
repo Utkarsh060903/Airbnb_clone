@@ -189,29 +189,32 @@ app.put('/places', async (req,res) => {
     res.json(await Place.find())
   } )
 
-  app.post('/bookings' , (req,res)=>{
+  app.post('/bookings' ,async (req,res)=>{
+    const userData = await getUserDataFromRequest(req)
     const {place,checkIn,checkOut,numberOfGuests,phone,price,name} = req.body
     Booking.create({
-        place,checkIn,checkOut,numberOfGuests,phone,price,name
+        place,checkIn,checkOut,numberOfGuests,phone,price,name,
+        user: userData.id
     }).then((doc)=>{
         res.json(doc)
     }).catch((err)=>{
         throw err
     })
   })
+
+  function getUserDataFromRequest(req) {
+    return new Promise((resolve,reject) => {
+        jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+            if(err) throw err;
+            resolve(userData)
+        })
+    })
+   }
   
-// app.post('/bookings', async (req, res) => {
-//     try {
-//         const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
-//         const booking = new Booking({
-//             place, checkIn, checkOut, numberOfGuests, name, phone, price
-//         });
-//         const savedBooking = await booking.save();
-//         res.status(201).json(savedBooking);
-//     } catch (err) {
-//         res.status(500).json({ error: 'Booking creation failed', details: err });
-//     }
-// });
+  app.get('/bookings' , async (req,res) => {
+    const userData = await getUserDataFromRequest(req)
+    res.json(await Booking.find({user:userData.id}))
+  })
 
 app.listen(4000, () => {
     console.log('Server running on port 4000');
