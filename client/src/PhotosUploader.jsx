@@ -9,8 +9,8 @@ const PhotosUploader = ({addPhotos , onChange}) => {
 
     async function addPhotoByLink(ev) {
         ev.preventDefault();
-        const {data:filename} = await axios.post('/upload-by-link', {link: photoLink});
-        onChange(prev => [...prev, `http://localhost:4000/uploads/${filename}`]);
+        const {data:filename} = await axios.post('https://byairbnb-o4ba.onrender.com/upload-by-link', {link: photoLink});
+        onChange(prev => [...prev, `/uploads/${filename}`]);
         setPhotoLink('');
       }
 
@@ -24,7 +24,7 @@ const PhotosUploader = ({addPhotos , onChange}) => {
           headers: {'Content-type':'multipart/form-data'}
         }).then(response => {
           const {data:filenames} = response;
-          onChange(prev => [...prev, ...filenames.map(file => `http://localhost:4000/uploads/${file}`)]);
+          onChange(prev => [...prev, ...filenames.map(file => `https://byairbnb-o4ba.onrender.com/uploads/${file}`)]);
         })
       }
 
