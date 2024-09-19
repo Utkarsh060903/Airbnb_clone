@@ -13,7 +13,7 @@ import PlacePage from './pages/PlacePage'
 import BookingsPage from './pages/BookingsPage'
 import BookingPage from './BookingPage'
 
-axios.defaults.baseURL = 'http://localhost:4000'
+axios.defaults.baseURL = 'https://byairbnb-o4ba.onrender.com'
 axios.defaults.withCredentials = true
 
 function App() {
