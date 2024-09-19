@@ -12,16 +12,20 @@ const app = express();
 const fs = require('fs')
 const Place = require('./models/Place.js')
 const Booking = require('./models/Booking.js')
+const dotenv = require('dotenv')
 
 const bcryptSalt = bcrypt.genSaltSync(10);
-const jwtSecret = 'sjdhfkjs4hrkjh4kjhkjwej';
+
+dotenv.config()
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     credentials: true,
-    origin: 'http://localhost:5173'  
+    origin: '*'  
 }));
+
+const port = process.env.PORT || 4000
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -55,7 +59,7 @@ app.post('/login', async (req, res) => {
         if (userDoc) {
             const passOk = bcrypt.compareSync(password, userDoc.password);
             if (passOk) {
-                jwt.sign({ email: userDoc.email, id: userDoc._id, name: userDoc.name }, jwtSecret, {}, (err, token) => {
+                jwt.sign({ email: userDoc.email, id: userDoc._id, name: userDoc.name }, process.env.JWT, {}, (err, token) => {
                     if (err) throw err;
                     res.cookie('token', token).json(userDoc);
                 });
@@ -74,7 +78,7 @@ app.post('/login', async (req, res) => {
 app.get('/profile', (req, res) => {
     const { token } = req.cookies;
     if (token) {
-        jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+        jwt.verify(token, process.env.JWT, {}, async (err, userData) => {
             if (err) throw err;
             const { name, email, _id } = await User.findById(userData.id);
             res.json({ name, email, _id });
@@ -129,7 +133,7 @@ app.post('/places', (req,res) => {
       title,address,addPhotos,description,
       perks,extraInfo,checkIn,checkOut,maxGuests,price,
     } = req.body;
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    jwt.verify(token, process.env.JWT, {}, async (err, userData) => {
       if (err) throw err;
       const placeDoc = await Place.create({
         owner:userData.id,
@@ -142,7 +146,7 @@ app.post('/places', (req,res) => {
 
 app.get('/user-places' , (req,res) => {
     const {token} = req.cookies;
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    jwt.verify(token, process.env.JWT, {}, async (err, userData) => {
         const {id} = userData
         res.json(await Place.find({owner:id}))
     })
@@ -171,7 +175,7 @@ app.put('/places', async (req,res) => {
       id, title,address,addPhotos,description,
       perks,extraInfo,checkIn,checkOut,maxGuests,price,
     } = req.body;
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    jwt.verify(token, process.env.JWT, {}, async (err, userData) => {
       if (err) throw err;
       const placeDoc = await Place.findById(id);
       if (userData.id === placeDoc.owner.toString()) {
@@ -204,7 +208,7 @@ app.put('/places', async (req,res) => {
 
   function getUserDataFromRequest(req) {
     return new Promise((resolve,reject) => {
-        jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+        jwt.verify(req.cookies.token, process.env.JWT, {}, async (err, userData) => {
             if(err) throw err;
             resolve(userData)
         })
@@ -216,6 +220,6 @@ app.put('/places', async (req,res) => {
     res.json(await Booking.find({user:userData.id}))
   })
 
-app.listen(4000, () => {
+app.listen(port, () => {
     console.log('Server running on port 4000');
 });
