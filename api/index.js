@@ -115,16 +115,27 @@ app.post('/upload-by-link', async (req, res) => {
 const photosMiddleware = multer({ dest: 'uploads/' });
 
 app.post('/upload', photosMiddleware.array('photos', 100), (req, res) => {
+    // const uploadedFiles = [];
+    // for (let i = 0; i < req.files.length; i++) {
+    //     const { path: tempPath, originalname } = req.files[i];
+    //     const parts = originalname.split('.');
+    //     const ext = parts[parts.length - 1];
+    //     const newPath = tempPath + '.' + ext;
+    //     fs.renameSync(tempPath, newPath);
+    //     uploadedFiles.push(newPath.replace('uploads/', ''));
+    // }
+    // res.json(uploadedFiles);
+
     const uploadedFiles = [];
     for (let i = 0; i < req.files.length; i++) {
-        const { path: tempPath, originalname } = req.files[i];
-        const parts = originalname.split('.');
-        const ext = parts[parts.length - 1];
-        const newPath = tempPath + '.' + ext;
-        fs.renameSync(tempPath, newPath);
-        uploadedFiles.push(newPath.replace('uploads/', ''));
-    }
-    res.json(uploadedFiles);
+    const { path: tempPath, originalname } = req.files[i];
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    const newPath = tempPath + '.' + ext;
+    fs.renameSync(tempPath, newPath);
+    uploadedFiles.push(`https://byairbnb-main.onrender.com/uploads/${newPath.replace('uploads/', '')}`);
+}
+res.json(uploadedFiles);
 });
 
 app.post('/places', (req,res) => {
