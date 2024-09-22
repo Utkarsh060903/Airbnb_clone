@@ -32,7 +32,7 @@ const PlacePage = () => {
                     </div>
                 {place?.photos?.length>0 && place.photos.map(photo => (
                     <div>
-                        <img src={photo} alt="" />
+                        <img src={`https://byairbnb-o4ba.onrender.com/uploads/${photo}`} alt="" />
                     </div>
                 ))}
                 </div>
